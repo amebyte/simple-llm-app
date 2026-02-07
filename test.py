@@ -16,9 +16,15 @@ response = client.chat.completions.create(
   temperature=0.5,
   messages=[   # 对话消息数组
       {"role": "user", "content": "你是谁？"}
-  ]
+  ],
+  stream=True, # 启用流式传输
 )
 # 打印结果
 # print(response.choices[0].message.content.strip())
 # 使用 model_dump_json 并指定缩进
-print(response.model_dump_json(indent=2))
+# print(response.model_dump_json(indent=2))
+for chunk in response:                           # 1. 遍历响应流
+    if chunk.choices[0].delta.content:           # 2. 检查是否有内容
+        print(chunk.choices[0].delta.content,    # 3. 打印内容
+              end="",                            # 4. 不换行
+              flush=True)                        # 5. 立即刷新缓冲区

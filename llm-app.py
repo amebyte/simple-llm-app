@@ -16,23 +16,21 @@ llm = ChatOpenAI(
     base_url="https://api.deepseek.com/v1"
 )
 
+# 创建了一个聊天提示模板，`from_template` 方法允许我们通过一个字符串模板来定义提示。
 prompt = ChatPromptTemplate.from_template("{question}")
+# 模板等待一个名为 "question" 的变量
+
+# 创建解析器：定义输出格式
 parser = StrOutputParser()
+# 将AI响应转换为字符串
 
-# 3. 组合链 (LCEL 语法)
-# chain = prompt | llm | parser
-
-# 第一步：prompt 处理
-messages = prompt.invoke({"question": "你是谁？"})
-# messages = [HumanMessage(content="你是谁？")]
-
-# 第二步：llm 处理
-response = llm.invoke(messages)
-# response = AIMessage(content="我是DeepSeek...")
-
-# 第三步：parser 处理
-result = parser.invoke(response)
+# 3. 组合链 (LCEL 语法) Python LangChain 常见的链式调用
+chain = prompt | llm | parser
+# 等价于：输入 → 模板填充 → AI处理 → 结果解析
 
 # 4. 执行
-# result = chain.invoke({"question": "你是谁？"})
+result = chain.invoke({"question": "你是谁？"})
+# 内部执行：填充"你是谁？" → 调用API → 解析响应 → 返回字符串
+
+# 5. 打印结果
 print(result)
