@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 2. 创建组件
-# 适配 DeepSeek 的配置
+# 相对于上面的使用 OpenAI 的接口，现在经过 LangChain 封装后确实简洁了很多
 llm = ChatOpenAI(
     model="deepseek-chat", 
     temperature=0.7,
@@ -16,13 +16,12 @@ llm = ChatOpenAI(
     base_url="https://api.deepseek.com/v1"
 )
 
-# 创建了一个聊天提示模板，`from_template` 方法允许我们通过一个字符串模板来定义提示。
+# 创建了一个人类角色的提示模板，`from_template` 方法允许我们通过一个字符串模板来定义提示，默认是人类角色。
 prompt = ChatPromptTemplate.from_template("{question}")
-# 模板等待一个名为 "question" 的变量
 
-# 创建解析器：定义输出格式
+# 创建解析器
 parser = StrOutputParser()
-# 将AI响应转换为字符串
+# 将AI响应转换为字符串，因为大模型返回的数据一般包含很多数据，我们只需要返回的字符串
 
 # 3. 组合链 (LCEL 语法) Python LangChain 常见的链式调用
 chain = prompt | llm | parser
