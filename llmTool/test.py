@@ -73,7 +73,7 @@ response = client.chat.completions.create(
     model="deepseek-chat",
     temperature=0.5,
     messages=messages,
-    tools=tools,
+    tools=tools, # 通过 `tools` 参数传入上述工具定义
     tool_choice="auto"  # "auto"：模型自主决定是否调用工具（默认）、"none"：禁止调用工具
 )
 
