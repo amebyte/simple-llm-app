@@ -269,7 +269,7 @@ def send_message(token: str, to_user_id: str, text: str, context_token: str) -> 
 _sessions: dict[str, list] = {}
 
 
-def ask_agent(user_id: str, user_text: str) -> str:
+def askAgent(user_id: str, user_text: str) -> str:
     """
     把用户的消息交给 Agent 处理，返回 Agent 的回复文本。
 
@@ -300,9 +300,9 @@ def run_monitor(token: str) -> None:
     长轮询监听循环：持续等待微信消息，收到后交给 Agent 处理并回复。
 
     整个循环做三件事：
-      1. 调 get_updates() 等消息（服务端"憋着"，有消息才返回）
+      1. 调 getUpdates() 等消息（服务端"憋着"，有消息才返回）
       2. 遍历返回的消息列表，提取文本，交给 ask_agent() 得到回复
-      3. 调 send_message() 把回复发回给用户
+      3. 调 sendMessage() 把回复发回给用户
 
     参数：
       token - 登录后拿到的 bot_token，每次请求都要带上
@@ -371,15 +371,15 @@ def run_monitor(token: str) -> None:
             print(f"[收到] {from_user}: {text[:60]}", flush=True)
 
             # 第二件事：把文本交给 Agent，得到回复
-            reply = ask_agent(from_user, text)
+            reply = askAgent(from_user, text)
             print(f"[回复] {reply[:60]}", flush=True)
 
             # 第三件事：把 Agent 的回复发回微信
             try:
                 send_message(token, from_user, reply, ctx_token)
-                print("[✓] 已发送", flush=True)
+                print("✅ 已发送", flush=True)
             except Exception as e:
-                print(f"[✗] 发送失败: {e}", flush=True)
+                print(f"❌ 发送失败: {e}", flush=True)
 
 
 # =============================================================================

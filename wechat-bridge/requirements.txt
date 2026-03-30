@@ -1,0 +1,13 @@
+langchain-openai==1.1.10
+langchain-core==1.2.17
+openai==2.24.0
+rich>=13.0.0
+prompt_toolkit>=3.0.0,<4.0.0
+
+# Mini OpenClaw 网关依赖
+itchat-uos>=1.3.10        # 微信 Web 协议（uos 分支，兼容性更好）
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.0.0
+
+qrcode_terminal == 0.8.0
