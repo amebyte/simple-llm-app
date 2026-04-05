@@ -1,0 +1,16 @@
+{
+  "name": "feishu-simple",
+  "version": "1.0.0",
+  "description": "使用飞书机器人链接本地 Agent 进行对话",
+  "main": "ws_worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ws": "^8.20.0"
+  }
+}

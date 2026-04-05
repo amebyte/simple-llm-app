@@ -1,6 +1,8 @@
 """基于 lark-oapi SDK 使用 WebSocket 长连接的飞书/Lark 渠道实现。"""
 
 import json
+import threading
+import asyncio
 from dataclasses import dataclass
 from loguru import logger
 import lark_oapi as lark

@@ -33,10 +33,15 @@ class FeishuChannel:
 
     async def start(self) -> None:
         """启动长连接"""
-        handler = lark.EventDispatcherHandler.builder(
+        # 注意：飞书的长连接客户端 (ws.Client) 只能用来"接收"事件，不能用来"发送"消息！
+        # 如果要主动发消息或回复消息，必须使用普通的 Open API 客户端 (lark.Client)
+        # 构建事件处理器
+        builder = lark.EventDispatcherHandler.builder(
             self.config.encrypt_key, 
             self.config.verification_token
-        ).register_p2_im_message_receive_v1(self._on_message).build()
+        )
+        # 注册接收消息事件处理函数 im.message.receive_v1
+        handler = builder.register_p2_im_message_receive_v1(self._on_message).build()
 
         def run_ws():
             # 为 WebSocket 客户端所在线程设置专属的事件循环，避免报错
@@ -44,14 +49,14 @@ class FeishuChannel:
             asyncio.set_event_loop(loop)
             import lark_oapi.ws.client
             lark_oapi.ws.client.loop = loop
-            
+            # 初始化长连接客户端
             ws_client = lark.ws.Client(
                 self.config.app_id, 
                 self.config.app_secret, 
                 event_handler=handler
             )
             ws_client.start()
-
+        # 在独立线程中运行飞书的 WebSocket 客户端，避免与主线程的事件循环冲突
         threading.Thread(target=run_ws, daemon=True).start()
         logger.info("✅ 飞书极简版机器人已启动 (WebSocket)")
 

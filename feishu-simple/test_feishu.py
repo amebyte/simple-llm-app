@@ -1,7 +1,7 @@
 from loguru import logger
 from feishu2 import FeishuChannel, FeishuConfig
 
-def main():
+async def main():
     # 1. 填入你的飞书机器人凭证
     config = FeishuConfig(
         app_id="cli_a95a40acebf8dbd7",         # 替换为真实的 App ID
@@ -17,9 +17,10 @@ def main():
     
     # 3. 启动并保持运行
     try:
-        channel.start()
+        await channel.start()
     except KeyboardInterrupt:
         logger.info("收到退出信号，正在关闭...")
 
 if __name__ == "__main__":
-    main()
+    import asyncio
+    asyncio.run(main())
