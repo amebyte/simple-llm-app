@@ -28,6 +28,7 @@ class FeishuChannel:
     def __init__(self, config: FeishuConfig, bus: MessageBus):
         self.config = config
         self.bus = bus
+        self._loop = None
         self._client = lark.Client.builder() \
             .app_id(config.app_id) \
             .app_secret(config.app_secret) \
@@ -43,8 +44,9 @@ class FeishuChannel:
             self.config.verification_token
         )
         # 注册接收消息事件处理函数 im.message.receive_v1
-        handler = builder.register_p2_im_message_receive_v1(self._on_message).build()
-
+        handler = builder.register_p2_im_message_receive_v1(self._on_message_sync).build()
+        # 保存主事件循环对象
+        self._loop = asyncio.get_running_loop()
         def run_ws():
             # 为 WebSocket 客户端所在线程设置专属的事件循环，避免报错
             loop = asyncio.new_event_loop()
@@ -68,6 +70,24 @@ class FeishuChannel:
 
     async def stop(self) -> None:
         logger.info("飞书机器人已停止")
+
+    def _on_message_sync(self, data: "P2ImMessageReceiveV1") -> None:
+        try:
+            if self._loop and self._loop.is_running():
+                # 将异步处理函数调度到主事件循环
+                asyncio.run_coroutine_threadsafe(
+                    self._on_message(data),
+                    self._loop
+                )
+            else:
+                # 备用方案：在新事件循环中运行
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    loop.run_until_complete(self._on_message(data))
+                finally:
+                    loop.close()
+        except Exception as e: logger.error(f"处理飞书消息时出错：{e}")  
 
     async def _on_message(self, data: P2ImMessageReceiveV1) -> None:
         """接收到消息时的回调"""
