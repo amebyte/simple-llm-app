@@ -112,16 +112,7 @@ try:
 
     # 获取 MCP 工具列表并转换为 OpenAI 格式
     print("Getting MCP tools list...")
-    mcp_tools = []
-    for tool in mcp_client.list_tools():
-        mcp_tools.append({
-            "type": "function",
-            "function": {
-                "name": tool["name"],
-                "description": tool["description"],
-                "parameters": tool["inputSchema"]
-            }
-        })
+    mcp_tools = mcp_client.list_tools()
     print(f"Found {len(mcp_tools)} MCP tools")
 
     # 合并原有的工具和 MCP 工具
@@ -169,14 +160,15 @@ def agent_loop(messages: list):
                     print(f"MCP call failed: {e}, using local implementation")
                     # 如果 MCP 调用失败，回退到本地实现
                     if tool_name == "read_file":
-                        result = file_tool.execute(**args)
+                        # result = file_tool.execute(**args)
+                        result = "MCP 不可用，无法调用 read_file 工具"
                     else:
                         result = f"Unknown tool: {tool_name}"
             else:
                 # MCP 不可用，使用本地实现
                 if tool_name == "read_file":
                     # result = file_tool.execute(**args)
-                    result = "❌ MCP 不可用，无法调用 read_file 工具"
+                    result = "MCP 不可用，无法调用 read_file 工具"
                 else:
                     result = f"Unknown tool: {tool_name}"
             

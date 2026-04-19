@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const { tools, ReadFileTool, fileTool } = require('./read-file.js');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -31,20 +32,7 @@ rl.on('line', (line) => {
             });
         } else if (request.method === 'tools/list') {
             sendResponse(request.id, {
-                tools: [
-                    {
-                        name: 'read_file',
-                        description: 'Read text file content.',
-                        inputSchema: {
-                            type: 'object',
-                            properties: {
-                                path: { type: 'string', description: 'File path to read' },
-                                encoding: { type: 'string', enum: ['utf-8', 'gbk'], description: 'File encoding' }
-                            },
-                            required: ['path']
-                        }
-                    }
-                ]
+                tools: tools
             });
         } else if (request.method === 'tools/call') {
             const { name, arguments: args } = request.params;
@@ -52,22 +40,10 @@ rl.on('line', (line) => {
                 try {
                     const filePath = args.path;
                     const encoding = args.encoding || 'utf-8';
-                    let resolvedPath = filePath;
-                    if (filePath.startsWith('~')) {
-                        resolvedPath = path.join(process.env.HOME || process.env.USERPROFILE, filePath.slice(1));
-                    }
-                    resolvedPath = path.resolve(resolvedPath);
-
-                    if (!fs.existsSync(resolvedPath)) {
-                        sendResponse(request.id, {
-                            content: [{ type: 'text', text: 'File not found: ' + filePath }]
-                        });
-                    } else {
-                        const content = fs.readFileSync(resolvedPath, encoding);
-                        sendResponse(request.id, {
-                            content: [{ type: 'text', text: content }]
-                        });
-                    }
+                    const content = fileTool.execute(filePath, encoding);
+                    sendResponse(request.id, {
+                        content: [{ type: 'text', text: content }]
+                    });
                 } catch (e) {
                     sendResponse(request.id, {
                         content: [{ type: 'text', text: 'Read failed: ' + e.message }],
